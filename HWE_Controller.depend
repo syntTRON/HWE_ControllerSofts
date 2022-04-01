@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1621250375 source:d:\discovery\atmega32u programme\bot_splevel\fuse.c
+	<avr/io.h>
+
+1624868819 source:d:\discovery\atmega32u programme\bot_splevel\main.c
+	<avr/io.h>
+	<avr/interrupt.h>
+
+1648788240 source:d:\discovery\atmega32u4\bot_splevel\fuse.c
+	<avr/io.h>
+

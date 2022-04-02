@@ -77,22 +77,23 @@ void adc_measure_init(unsigned char channel)
 
 	ADMUX = 0;
 	ADMUX &= ~(1<<REFS1)&~(1<<REFS0);			//ext. AREF = 5V
-	ADMUX &= ~(1<<ADLAR);						//rechttsbuendig 10bit
+	ADMUX &= ~(1<<ADLAR);						//reight adjusted 10bit
 
 	ADCSRB &= ~(1<<MUX5);
 	ADMUX &= ~(1<<MUX4)&~(1<<MUX3)&~(1<<MUX2)&~(1<<MUX1);
 	ADMUX |= channel;
 
-	ADCSRA |= (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)|(1<<ADIE)|(1<<ADIF);	//ADC einschalten, Teiler auf 128 -> 125kHz Samplingfrequenz
+	ADCSRA |= (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)|(1<<ADIE)|(1<<ADIF);	//ADC activate, Prescaler on 128 -> 125kHz Samplingfrequenzy
 
 	ADCSRA |= (1<<ADSC);						//start
 	//ADCSRA=0xC8;
-	//while(ADCSRA&(1<<ADSC));					//warten auf Wandlungsende
+	//while(ADCSRA&(1<<ADSC));					//wate till compleate -- wuld be like delay and got remouved
 
 }
 
 void adc_val_update(void)
 {
+        // Updating global var ADC_Val
     	uint8_t adcl_tmp=0x00, adch_tmp=0x00;
         adcl_tmp=ADCL;
         adch_tmp=ADCH;
@@ -102,7 +103,7 @@ void adc_val_update(void)
 int main(void)
 {
 
-    // Clk
+    // CLK_IO to 16MHz
     CLKPR=0x80;
     CLKPR=0x00;
     //Disable Jtag
@@ -144,6 +145,7 @@ int main(void)
 	TCCR4B = TCCR4B &~(1<<CS41);		//f_CLK_T4 = CLK_IO/Prescaler = 16MHz/256 = 62,5kHz
 	TCCR4B = TCCR4B | (1<<CS40);		//Timer4 Prescaler = 1, Start PWM
 
+    Will be active in future realeases
 	*/
 
 	//Interupts Aktivieren
@@ -154,19 +156,22 @@ int main(void)
 
     while(1)
     {
+        //On the fly interupt handling
         if(ISR_Occured==0xFF)
         {
             ISR_Occured=0x00;
             ISR_Count=ISR_Count+1;
         }
 
+        //Software Timer
         if(ISR_Count>=240)
         {
-            adc_measure_init(0);
+            adc_measure_init(0); // Initialize measurement on ADC0 pin
             ISR_Count=0x00;
         }
 
 
+        //ADC Measure Compleated interupt handling
         if(ADC_Mesure_Compleated==0xFF)
         {
             ADC_Mesure_Compleated=0x00;
@@ -175,6 +180,7 @@ int main(void)
         }
 
 
+        //Handling of different voltage levels detected on ADC0 pin
         PORTB = 0x00;
         if(ADC_Val>=586)
         {
@@ -188,7 +194,7 @@ int main(void)
         {
             PORTB = 0x01;
         }
-        //---------------------Main Prog under This Text
+        // Ad something in the future
 
     }
 

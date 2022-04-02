@@ -21,7 +21,7 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   8 .debug_frame  00000060  00000000  00000000  00000a30  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000158  00000000  00000000  00000a90  2**0
+  9 .debug_str    00000164  00000000  00000000  00000a90  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -179,7 +179,7 @@ void adc_measure_init(unsigned char channel)
  142:	80 81       	ld	r24, Z
  144:	8f 73       	andi	r24, 0x3F	; 63
  146:	8c 93       	st	X, r24
-	ADMUX &= ~(1<<ADLAR);						//rechttsbuendig 10bit
+	ADMUX &= ~(1<<ADLAR);						//reight adjusted 10bit
  148:	ac e7       	ldi	r26, 0x7C	; 124
  14a:	b0 e0       	ldi	r27, 0x00	; 0
  14c:	ec e7       	ldi	r30, 0x7C	; 124
@@ -214,7 +214,7 @@ void adc_measure_init(unsigned char channel)
  17e:	89 2b       	or	r24, r25
  180:	8c 93       	st	X, r24
 
-	ADCSRA |= (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)|(1<<ADIE)|(1<<ADIF);	//ADC einschalten, Teiler auf 128 -> 125kHz Samplingfrequenz
+	ADCSRA |= (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)|(1<<ADIE)|(1<<ADIF);	//ADC activate, Prescaler on 128 -> 125kHz Samplingfrequenzy
  182:	aa e7       	ldi	r26, 0x7A	; 122
  184:	b0 e0       	ldi	r27, 0x00	; 0
  186:	ea e7       	ldi	r30, 0x7A	; 122
@@ -232,7 +232,7 @@ void adc_measure_init(unsigned char channel)
  19a:	80 64       	ori	r24, 0x40	; 64
  19c:	8c 93       	st	X, r24
 	//ADCSRA=0xC8;
-	//while(ADCSRA&(1<<ADSC));					//warten auf Wandlungsende
+	//while(ADCSRA&(1<<ADSC));					//wate till compleate -- wuld be like delay and got remouved
 
 }
  19e:	0f 90       	pop	r0
@@ -249,6 +249,7 @@ void adc_val_update(void)
  1aa:	00 d0       	rcall	.+0      	; 0x1ac <adc_val_update+0x6>
  1ac:	cd b7       	in	r28, 0x3d	; 61
  1ae:	de b7       	in	r29, 0x3e	; 62
+        // Updating global var ADC_Val
     	uint8_t adcl_tmp=0x00, adch_tmp=0x00;
  1b0:	1a 82       	std	Y+2, r1	; 0x02
  1b2:	19 82       	std	Y+1, r1	; 0x01
@@ -292,7 +293,7 @@ int main(void)
  1f0:	cd b7       	in	r28, 0x3d	; 61
  1f2:	de b7       	in	r29, 0x3e	; 62
 
-    // Clk
+    // CLK_IO to 16MHz
     CLKPR=0x80;
  1f4:	e1 e6       	ldi	r30, 0x61	; 97
  1f6:	f0 e0       	ldi	r31, 0x00	; 0
@@ -355,8 +356,8 @@ int main(void)
  24a:	eb e2       	ldi	r30, 0x2B	; 43
  24c:	f0 e0       	ldi	r31, 0x00	; 0
  24e:	10 82       	st	Z, r1
-	TCCR4B = TCCR4B | (1<<CS40);		//Timer4 Prescaler = 1, Start PWM
 
+    Will be active in future realeases
 	*/
 
 	//Interupts Aktivieren
@@ -369,6 +370,7 @@ int main(void)
 
     while(1)
     {
+        //On the fly interupt handling
         if(ISR_Occured==0xFF)
  254:	80 91 01 01 	lds	r24, 0x0101
  258:	8f 3f       	cpi	r24, 0xFF	; 255
@@ -382,12 +384,13 @@ int main(void)
  264:	89 83       	std	Y+1, r24	; 0x01
         }
 
+        //Software Timer
         if(ISR_Count>=240)
  266:	89 81       	ldd	r24, Y+1	; 0x01
  268:	80 3f       	cpi	r24, 0xF0	; 240
  26a:	20 f0       	brcs	.+8      	; 0x274 <main+0x8a>
         {
-            adc_measure_init(0);
+            adc_measure_init(0); // Initialize measurement on ADC0 pin
  26c:	80 e0       	ldi	r24, 0x00	; 0
  26e:	0e 94 94 00 	call	0x128	; 0x128 <adc_measure_init>
             ISR_Count=0x00;
@@ -395,6 +398,7 @@ int main(void)
         }
 
 
+        //ADC Measure Compleated interupt handling
         if(ADC_Mesure_Compleated==0xFF)
  274:	80 91 00 01 	lds	r24, 0x0100
  278:	8f 3f       	cpi	r24, 0xFF	; 255
@@ -408,6 +412,7 @@ int main(void)
         }
 
 
+        //Handling of different voltage levels detected on ADC0 pin
         PORTB = 0x00;
  284:	e5 e2       	ldi	r30, 0x25	; 37
  286:	f0 e0       	ldi	r31, 0x00	; 0

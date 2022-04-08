@@ -5,58 +5,6 @@ HWE Automatic Flyback converter adc voltage dedetct and pwm gennerator
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#define PWM_STOPP_RIGHT	300
-#define PWM_STOPP_LEFT	302
-#define PWM_MAX			400
-#define PWM_MIN			200
-
-// PORTB
-#define LED_RV			(1<<0)
-#define LED_RH			(1<<1)
-#define LED_LV			(1<<2)
-#define LED_LH			(1<<3)
-#define LED_GRUEN		(1<<4)
-#define LED_ROT			(1<<5)
-#define MOT_RIGHT		(1<<6)
-
-// PORTD
-// PD0 -> I2C SCL
-// PD1 -> I2C SDA
-#define RECEIVER		(1<<2)
-#define TRANSMITTER		(1<<3)
-#define WHEEL_RIGHT		(1<<4)
-#define DEBUG1			(1<<5)
-#define LF_EMITTER		(1<<6)
-#define MOT_LEFT		(1<<7)
-
-//PORTF
-#define MEASURE_UB		(1<<0)
-#define ADC_UB			0
-#define LF_LEFT			(1<<1)
-#define ADC_LF_LEFT		1
-#define LF_RIGHT		(1<<4)
-#define ADC_LF_RIGHT	4
-#define CHOOSE_LR		(1<<5)
-#define CHOOSE_FB		(1<<6)
-#define DEBUG2			(1<<7)
-
-//PORTC
-#define IO_RESET		(1<<6)
-#define WHEEL_LEFT		(1<<7)
-
-//PORTE
-#define IO_INT			(1<<6)
-
-//Motorick
-#define PWM_R_VOR_MAX	125				//2 ms
-#define PWM_R_RET_MAX	62				//0,992 ms
-#define PWM_R_STOPP		94				//1,504 ms
-
-#define PWM_L_VOR_MAX	62				//0,992 ms
-#define PWM_L_RET_MAX	125				//2 ms
-#define PWM_L_STOPP		94				//1,504 ms
-
-
 unsigned char ADC_Mesure_Compleated = 0x00;
 unsigned char ISR_Occured=0x00;
 uint16_t ADC_Val=0x0000;

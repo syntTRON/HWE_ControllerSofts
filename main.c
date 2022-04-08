@@ -1,5 +1,5 @@
 /*
-Bot SP level Dedect
+HWE Automatic Flyback converter adc voltage dedetct and pwm gennerator
  */
 
 #include <avr/io.h>
@@ -120,39 +120,21 @@ int main(void)
 //0x40
     DDRD=0xFF;
     PORTD=0x00;
+    //Port c
+    DDRC = 0x80;
+    PORTC = 0x80;
 
-    //Timer4 HardwarePWM Setup
-    /*
-    TCCR4A = TCCR4A | (1<<PWM4B);
-	TCCR4C = TCCR4C | (1<<PWM4D);
-	TCCR4D = TCCR4D &~(1<<WGM41);
-	TCCR4D = TCCR4D &~(1<<WGM40);		//Fast PWM am OC4B und OC4D
-
-	TCCR4A = TCCR4A &~(1<<COM4B0);
-	TCCR4A = TCCR4A | (1<<COM4B1);		//COM4B1:0=2
-
-	TCCR4C = TCCR4C &~(1<<COM4D0);
-	TCCR4C = TCCR4C | (1<<COM4D1);		//COM4D1:0=2
-
-	TC4H = 0x03;
-	OCR4C = 0xE8;						//f_PWM = f_CLK_T4/(1+OCR4C) = 62,5kHz/1000 = 62,5 Hz
-	TC4H = 0x00;
-	OCR4B = PWM_R_STOPP;				//Tastverhältnis am OC4B-Pin (PB6), PWM_rechts
-	OCR4D = PWM_L_STOPP;				//Tastverhältnis am OC4D-Pin (PD7), PWM_links
-
-	TCCR4B = TCCR4B | (1<<CS43);
-	TCCR4B = TCCR4B &~(1<<CS42);
-	TCCR4B = TCCR4B &~(1<<CS41);		//f_CLK_T4 = CLK_IO/Prescaler = 16MHz/256 = 62,5kHz
-	TCCR4B = TCCR4B | (1<<CS40);		//Timer4 Prescaler = 1, Start PWM
-
-    Will be active in future realeases
-	*/
+	//Timer 4 Setup Hardware PWM
+	TCCR4D = 0x01;
+	OCR4C = 23;
+	TCCR4A = 0xC2;
+	TCCR4B = 0x05;
+	OCR4A = 12;
 
 	//Interupts Aktivieren
     sei();
 
     uint8_t ISR_Count=0x00;
-
 
     while(1)
     {
@@ -180,19 +162,33 @@ int main(void)
         }
 
 
-        //Handling of different voltage levels detected on ADC0 pin
+        //Handling of different voltage levels detected on ADC0 pin with automatic PWM controll
         PORTB = 0x00;
         if(ADC_Val>=586)
         {
            PORTB = 0x04;
+           unsigned char tmp = ADC_Val - 585;
+           if (tmp >= 5)
+           {
+               OCR4A = 17 + tmp;
+           }
+           else{OCR4A = 22;}
+           if (tmp >= 12){OCR4A = 23;}
         }
         else if(ADC_Val>=575&&ADC_Val<=585)
         {
             PORTB = 0x02;
+            OCR4A = 17;
         }
         else if(ADC_Val<=574)
         {
             PORTB = 0x01;
+           unsigned char tmp = 575 - ADC_Val;
+           if (tmp >= 5)
+           {
+               OCR4A = 17 - tmp;
+           }
+           else{OCR4A = 12;}
         }
         // Ad something in the future
 

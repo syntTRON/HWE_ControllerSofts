@@ -12,3 +12,7 @@
 1648788240 source:d:\discovery\my_public_gits\hwe_controllersofts\fuse.c
 	<avr/io.h>
 
+1649404246 source:d:\discovery\my_public_gits\hwe_controllersofts\main.c
+	<avr/io.h>
+	<avr/interrupt.h>
+

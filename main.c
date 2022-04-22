@@ -1,5 +1,9 @@
 /*
 HWE Automatic Flyback converter adc voltage dedetct and pwm gennerator
+
+Used Pins
+ADC0 PF0
+PC7 OC4A
  */
 
 #include <avr/io.h>
@@ -62,6 +66,8 @@ int main(void)
     TCCR0A=0x00;
     TCCR0B=0x04;
     TIMSK0=0x01;
+    //Timer 0 Stop
+    TCCR0B = 0x00;
 //0x3F
     DDRB=0xFF;
     PORTB=0x00;
@@ -77,12 +83,14 @@ int main(void)
 	OCR4C = 23;
 	TCCR4A = 0xC2;
 	TCCR4B = 0x05;
-	OCR4A = 12;
+	OCR4A = 17;
 
 	//Interupts Aktivieren
     sei();
 
-    uint8_t ISR_Count=0x00;
+    //uint8_t ISR_Count=0x00;
+
+    adc_measure_init(0); // Initialize measurement on ADC0 pin
 
     while(1)
     {
@@ -90,23 +98,23 @@ int main(void)
         if(ISR_Occured==0xFF)
         {
             ISR_Occured=0x00;
-            ISR_Count=ISR_Count+1;
+            //ISR_Count=ISR_Count+1;
         }
 
         //Software Timer
+        /*
         if(ISR_Count>=240)
         {
-            adc_measure_init(0); // Initialize measurement on ADC0 pin
             ISR_Count=0x00;
         }
-
+        */
 
         //ADC Measure Compleated interupt handling
         if(ADC_Mesure_Compleated==0xFF)
         {
             ADC_Mesure_Compleated=0x00;
-
             adc_val_update();
+            adc_measure_init(0); // Initialize measurement on ADC0 pin
         }
 
 
@@ -118,10 +126,10 @@ int main(void)
            unsigned char tmp = ADC_Val - 585;
            if (tmp >= 5)
            {
-               OCR4A = 17 + tmp;
+               OCR4A = 17 - tmp;
            }
-           else{OCR4A = 22;}
-           if (tmp >= 12){OCR4A = 23;}
+           else{OCR4A = 12;}
+           //if (tmp >= 12){OCR4A = 23;}
         }
         else if(ADC_Val>=575&&ADC_Val<=585)
         {
@@ -131,12 +139,16 @@ int main(void)
         else if(ADC_Val<=574)
         {
             PORTB = 0x01;
+            /*
            unsigned char tmp = 575 - ADC_Val;
            if (tmp >= 5)
            {
-               OCR4A = 17 - tmp;
+               OCR4A = 17 + tmp;
            }
-           else{OCR4A = 12;}
+           else{OCR4A = 22;}
+           if (tmp >= 12){OCR4A = 23;}
+            */
+            OCR4A = 18;
         }
         // Ad something in the future
 

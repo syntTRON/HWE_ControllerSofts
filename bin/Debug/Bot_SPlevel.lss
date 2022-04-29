@@ -445,11 +445,11 @@ int main(void)
  2b8:	e5 e2       	ldi	r30, 0x25	; 37
  2ba:	f0 e0       	ldi	r31, 0x00	; 0
  2bc:	10 82       	st	Z, r1
-        if(ADC_Val>=586)
+        if(ADC_Val >= (586 - REDUCTION))
  2be:	80 91 02 01 	lds	r24, 0x0102
  2c2:	90 91 03 01 	lds	r25, 0x0103
  2c6:	22 e0       	ldi	r18, 0x02	; 2
- 2c8:	8a 34       	cpi	r24, 0x4A	; 74
+ 2c8:	8c 32       	cpi	r24, 0x2C	; 44
  2ca:	92 07       	cpc	r25, r18
  2cc:	d8 f0       	brcs	.+54     	; 0x304 <main+0x11a>
         {
@@ -458,10 +458,10 @@ int main(void)
  2d0:	f0 e0       	ldi	r31, 0x00	; 0
  2d2:	84 e0       	ldi	r24, 0x04	; 4
  2d4:	80 83       	st	Z, r24
-           unsigned char tmp = ADC_Val - 585;
+           unsigned char tmp = ADC_Val - (585 - REDUCTION);
  2d6:	80 91 02 01 	lds	r24, 0x0102
  2da:	90 91 03 01 	lds	r25, 0x0103
- 2de:	89 54       	subi	r24, 0x49	; 73
+ 2de:	8b 52       	subi	r24, 0x2B	; 43
  2e0:	89 83       	std	Y+1, r24	; 0x01
            if (tmp >= 5)
  2e2:	89 81       	ldd	r24, Y+1	; 0x01
@@ -487,17 +487,17 @@ int main(void)
  302:	c9 cf       	rjmp	.-110    	; 0x296 <main+0xac>
            //if (tmp >= 12){OCR4A = 23;}
         }
-        else if(ADC_Val>=575&&ADC_Val<=585)
+        else if(ADC_Val >= (575 - REDUCTION)&&ADC_Val <= (585 - REDUCTION))
  304:	80 91 02 01 	lds	r24, 0x0102
  308:	90 91 03 01 	lds	r25, 0x0103
  30c:	22 e0       	ldi	r18, 0x02	; 2
- 30e:	8f 33       	cpi	r24, 0x3F	; 63
+ 30e:	81 32       	cpi	r24, 0x21	; 33
  310:	92 07       	cpc	r25, r18
  312:	88 f0       	brcs	.+34     	; 0x336 <main+0x14c>
  314:	80 91 02 01 	lds	r24, 0x0102
  318:	90 91 03 01 	lds	r25, 0x0103
  31c:	22 e0       	ldi	r18, 0x02	; 2
- 31e:	8a 34       	cpi	r24, 0x4A	; 74
+ 31e:	8c 32       	cpi	r24, 0x2C	; 44
  320:	92 07       	cpc	r25, r18
  322:	48 f4       	brcc	.+18     	; 0x336 <main+0x14c>
         {
@@ -513,11 +513,11 @@ int main(void)
  332:	80 83       	st	Z, r24
  334:	b0 cf       	rjmp	.-160    	; 0x296 <main+0xac>
         }
-        else if(ADC_Val<=574)
+        else if(ADC_Val <= (574 - REDUCTION))
  336:	80 91 02 01 	lds	r24, 0x0102
  33a:	90 91 03 01 	lds	r25, 0x0103
  33e:	22 e0       	ldi	r18, 0x02	; 2
- 340:	8f 33       	cpi	r24, 0x3F	; 63
+ 340:	81 32       	cpi	r24, 0x21	; 33
  342:	92 07       	cpc	r25, r18
  344:	08 f0       	brcs	.+2      	; 0x348 <main+0x15e>
  346:	a7 cf       	rjmp	.-178    	; 0x296 <main+0xac>

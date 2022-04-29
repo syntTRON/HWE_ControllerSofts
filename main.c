@@ -9,6 +9,8 @@ PC7 OC4A
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+#define REDUCTION 30
+
 unsigned char ADC_Mesure_Compleated = 0x00;
 unsigned char ISR_Occured=0x00;
 uint16_t ADC_Val=0x0000;
@@ -120,10 +122,10 @@ int main(void)
 
         //Handling of different voltage levels detected on ADC0 pin with automatic PWM controll
         PORTB = 0x00;
-        if(ADC_Val>=586)
+        if(ADC_Val >= (586 - REDUCTION))
         {
            PORTB = 0x04;
-           unsigned char tmp = ADC_Val - 585;
+           unsigned char tmp = ADC_Val - (585 - REDUCTION);
            if (tmp >= 5)
            {
                OCR4A = 17 - tmp;
@@ -131,12 +133,12 @@ int main(void)
            else{OCR4A = 12;}
            //if (tmp >= 12){OCR4A = 23;}
         }
-        else if(ADC_Val>=575&&ADC_Val<=585)
+        else if(ADC_Val >= (575 - REDUCTION)&&ADC_Val <= (585 - REDUCTION))
         {
             PORTB = 0x02;
             OCR4A = 17;
         }
-        else if(ADC_Val<=574)
+        else if(ADC_Val <= (574 - REDUCTION))
         {
             PORTB = 0x01;
             /*
